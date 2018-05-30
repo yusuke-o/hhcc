@@ -1,4 +1,0 @@
-<launch>
-  <include file="$(find hhcc_sample_recog)/launch/find_red_object.launch" />
-  <node pkg="hhcc_challenge" type="simple_pick_2.py" name="pick" output="screen" required="true" />
-</launch>

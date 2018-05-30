@@ -1,14 +1,22 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(hhcc_challenge)
+project(hhcc)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  geometry_msgs
+  rospy
+)
 
 catkin_package(
 )
 
+include_directories(
+# include
+  ${catkin_INCLUDE_DIRS}
+)
+
 install(PROGRAMS
-  scripts/simple_pick.py
-  scripts/simple_pick_2.py
+  scripts/find_object.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

@@ -18,7 +18,7 @@ def find_max_rect_of_target_color(image):
     s = hsv[:, :, 1]
     v = hsv[:, :, 2]
     mask = np.zeros(h.shape, dtype=np.uint8)
-    mask[((h < 20) | (h > 230)) & (s > 128) & (v > 128)] = 255
+    mask[(s > 128) & (v > 128)] = 255
     image, contours, _ = cv2.findContours(
         mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     rects = []
@@ -33,7 +33,7 @@ def find_max_rect_of_target_color(image):
         return None
 
 
-class FindRedObject:
+class FindObject:
     u"""find red object and publish tf"""
 
     def __init__(self):
@@ -96,6 +96,6 @@ class FindRedObject:
 
 
 if __name__ == "__main__":
-    rospy.init_node('find_red')
+    rospy.init_node('find')
     find = FindRedObject()
     rospy.spin()
