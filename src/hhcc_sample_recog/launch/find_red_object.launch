@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="hhcc_sample_recog" type="find_red_object.py" name="find" output="screen" required="true" >
+  <remap from="rgb_image" to="/hsrb/head_rgbd_sensor/rgb/image_rect_color" />
+  <remap from="depth_image" to="/hsrb/head_rgbd_sensor/depth_registered/image_rect_raw" />
+  <remap from="depth_camera_info" to="/hsrb/head_rgbd_sensor/depth_registered/camera_info" />
+  </node>
+</launch>
