@@ -16,7 +16,7 @@ include_directories(
 )
 
 install(PROGRAMS
-  scripts/find_object.py
+  scripts/find_block.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

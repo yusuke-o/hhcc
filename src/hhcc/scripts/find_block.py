@@ -12,13 +12,17 @@ from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import Image
 
 
-def find_max_rect_of_target_color(image):
+def find_max_rect_of_target_color(image, white=False):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL)
     h = hsv[:, :, 0]
     s = hsv[:, :, 1]
     v = hsv[:, :, 2]
     mask = np.zeros(h.shape, dtype=np.uint8)
-    mask[(s > 128) & (v > 128)] = 255
+    if white:
+        mask[(s < 32) & (v > 192)] = 255
+    else:
+        mask[(((h < 20) | (h > 235)) | ((h > 32) & (h < 60)) | ((h > 140) & (h < 185))) 
+             & (s > 128) & (v > 128)] = 255
     image, contours, _ = cv2.findContours(
         mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     rects = []
@@ -27,7 +31,7 @@ def find_max_rect_of_target_color(image):
         rect = cv2.boundingRect(approx)
         rects.append(np.array(rect))
     if len(rects) != 0:
-        rect = max(rects, key=(lambda x: x[2] * x[3]))
+        rect = min(rects, key=(lambda x: x[2] * x[3]))
         return rect
     else:
         return None
@@ -62,6 +66,8 @@ class FindObject:
             rospy.logerr(e)
             return
         rect = find_max_rect_of_target_color(rgb_image)
+        if rect is None:
+            rect = find_max_rect_of_target_color(rgb_image, white=True)           
         if rect is not None:
             cv2.rectangle(rgb_image,
                           tuple(rect[0:2]),
@@ -77,13 +83,13 @@ class FindObject:
             z = depth_array[v][u] * 1e-3
             # no valid point
             if z == 0.0:
-                rospy.loginfo('no valid depth in red region.')
+                rospy.loginfo('no valid depth in region.')
                 return
             image_point = np.array([u, v, 1])
             object_point = np.dot(self._invK, image_point) * z
             t = geometry_msgs.msg.TransformStamped()
             t.header = depth.header
-            t.child_frame_id = 'red_object'
+            t.child_frame_id = 'object'
             t.transform.translation.x = object_point[0]
             t.transform.translation.y = object_point[1]
             t.transform.translation.z = object_point[2]
@@ -91,11 +97,11 @@ class FindObject:
             t.transform.rotation.w = np.cos(-np.pi / 4)
             self._br.sendTransform([t])
         else:
-            rospy.loginfo('no valid red regions.')
+            rospy.loginfo('no valid regions.')
             return
 
 
 if __name__ == "__main__":
     rospy.init_node('find')
-    find = FindRedObject()
+    find = FindObject()
     rospy.spin()
